@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+//#include "Proyecto1.1.h"
 
 // Estructura de nodos en columnas
 
@@ -73,6 +74,7 @@ NodoColumnas *new_node_columnas(int v)
     return newp;
 }
 
+// Funcion para crear el nodo principal
 NodoPrincipal *new_nodo_principal(int m, int n)
 {
     NodoPrincipal *newp;
@@ -89,6 +91,7 @@ NodoPrincipal *new_nodo_principal(int m, int n)
     return newp;
 }
 
+// Funcion para agregar un nodo de columna
 NodoColumnas *add_node_columna(NodoColumnas *list, NodoColumnas *newp)
 {
     NodoColumnas *p;
@@ -104,6 +107,7 @@ NodoColumnas *add_node_columna(NodoColumnas *list, NodoColumnas *newp)
     return list;
 }
 
+// Funcion para agregar un nodo de fila
 NodoFilas *add_node_fila(NodoFilas *list, NodoFilas *newp)
 {
     NodoFilas *p;
@@ -117,6 +121,53 @@ NodoFilas *add_node_fila(NodoFilas *list, NodoFilas *newp)
     return list;
 }
 
+// Funcion para el producto de un escalar por la lista M
+NodoPrincipal *mporescalar(NodoPrincipal *lis, int escalar);
+
+// Buscar los elementos de la matriz
+int Search(NodoColumnas *Column, int pos)
+{
+    while (Column)
+    {
+        if (Column->columna == pos)
+        {
+            return Column->dato;
+        }
+        Column = Column->next;
+    }
+    return 0;
+}
+
+// Mostrar los elementos de la matriz
+
+void print_matrix(NodoPrincipal *MainNode)
+{
+    NodoFilas *AuxRow, *Matrix;
+    NodoColumnas *AuxColumn;
+    int x = 0;
+
+    if (MainNode == NULL)
+    {
+        printf("La matriz no existe");
+        return;
+    }
+
+    Matrix = MainNode->matriz;
+
+    while (Matrix)
+    {
+        AuxColumn = Matrix->next_derecha;
+        Matrix = Matrix->next_abajo;
+        for (int i = 0; i <= MainNode->Columnas; i++)
+        {
+            x = Search(AuxColumn, i);
+            printf("%i ", x);
+        }
+        printf("\n");
+    }
+}
+
+// Funcion para crear la matriz
 NodoPrincipal *crear_matriz()
 {
     NodoPrincipal *Matriz = NULL;
@@ -124,9 +175,9 @@ NodoPrincipal *crear_matriz()
     NodoColumnas *newcolumna = NULL;
     int x, y, valor;
 
-    printf("Ingrese el numero de filas");
+    printf("Ingrese el numero de filas:\n");
     scanf("%i", &SizeFila);
-    printf("Ingrese el numero de columnas");
+    printf("Ingrese el numero de columnas:\n");
     scanf("%i", &SizeColumna);
 
     Matriz = new_nodo_principal(SizeFila, SizeColumna);
@@ -142,7 +193,7 @@ NodoPrincipal *crear_matriz()
     {
         for (y = 1; y <= SizeColumna; y++)
         {
-            printf("Ingrese el valor en la posicion(%i,%i)", x, y);
+            printf("Ingrese el valor en la posicion(%i,%i):\n", x, y);
             scanf("%i", &valor);
             PosColumna++;
             if (valor != 0)
@@ -160,5 +211,13 @@ NodoPrincipal *crear_matriz()
 
 int main()
 {
-    crear_matriz();
+    // Creacion de matriz
+    NodoPrincipal *matrizp;
+    matrizp = crear_matriz();
+    print_matrix(matrizp);
+
+    /*int escalar;
+    printf("Ingrese un numero para multiplicar por la matriz:\n");
+    scanf("%i",&escalar);
+    mporescalar(matrizp,escalar);*/
 }
