@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "Proyecto1.h"
 
 // Estructura de nodos en columnas
 
@@ -290,87 +291,4 @@ NodoPrincipal *sumar(NodoPrincipal *m1, NodoPrincipal *m2)
     }
 
     return m2;
-}
-
-int main()
-{
-    int PosicionY, PosicionX, datico, item, esc, choice;
-    NodoPrincipal *mtrx, *esc_mtrx, *mtrx2, *suma_mtrx;
-
-    do
-    {
-        printf("\n");
-        printf("¿Que desea hacer?\n");
-        printf("1. Obtener Elemento\n");
-        printf("2. Asignar Elemento\n");
-        printf("3. Producto por Escalar \n");
-        printf("4.Suma de matrices\n");
-        printf("5.Exit");
-        printf("--------------------------------\n");
-        scanf("%d", &choice);
-
-        // mtrx = crear_matriz();
-
-        system("clear");
-
-        switch (choice)
-        {
-        case 1:
-            mtrx = crear_matriz();
-            printf("Ingrese la posicion de la columna:\n");
-            scanf("%i", &PosicionY);
-            printf("Ingrese la posicion de la fila:\n");
-            scanf("%i", &PosicionX);
-            system("clear");
-            item = get_item(PosicionY, PosicionX, mtrx);
-            printf("El elemento obtenido es: %i\n", item);
-            break;
-
-        case 2:
-            mtrx = crear_matriz();
-            printf("Ingrese la posicion de la columna:\n");
-            scanf("%i", &PosicionY);
-            printf("Ingrese la posicion de la fila:\n");
-            scanf("%i", &PosicionX);
-            printf("Ingrese el dato a asignar:\n");
-            scanf("%i", &datico);
-            system("clear");
-            Assign(PosicionY, PosicionX, datico, mtrx);
-            printf("La matriz con el elemento asignado es:\n");
-            print_matrix(mtrx);
-            break;
-
-        case 3:
-            mtrx = crear_matriz();
-            printf("Introduzca el valor por el cual se multiplicara la matriz\n");
-            scanf("%i", &esc);
-            esc_mtrx = mporescalar(mtrx, esc);
-            system("clear");
-            printf("La matrix por el escalar es:\n");
-            print_matrix(esc_mtrx);
-            break;
-
-        case 4:
-            mtrx = crear_matriz();
-            mtrx2 = crear_matriz();
-
-            system("clear");
-
-            if ((mtrx->Filas != mtrx2->Filas) || (mtrx->Columnas != mtrx2->Columnas))
-            {
-                printf("Las matrices no coinciden \n");
-                break;
-            }
-
-            suma_mtrx = sumar(mtrx, mtrx2);
-            print_matrix(suma_mtrx);
-            break;
-
-        case 5:
-            printf("Ha salido exitosamente\n");
-        default:
-            printf("Hasta luego\n");
-        }
-
-    } while (choice != 5);
 }
