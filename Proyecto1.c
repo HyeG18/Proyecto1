@@ -1,130 +1,376 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//Estructura de nodos en columnas
+// Estructura de nodos en columnas
 
-typedef struct NodeJ
+typedef struct NodoColumnas
 {
     int dato;
     int columna;
-    struct NodeJ *next;
-    
-} NodoJ;
+    struct NodoColumnas *next;
 
-//Estructura de nodo en filas
+} NodoColumnas;
 
-typedef struct NodeI
+// Estructura de nodo en filas
+
+typedef struct NodoFilas
 {
-    int fila;         
-    struct NodeI *nexti;
-    struct NodeJ *nextj; 
-} NodoI;
+    int fila;
+    struct NodoFilas *next_abajo;
+    struct NodoColumnas *next_derecha;
 
-//Nodo Principal
+} NodoFilas;
+
+// Nodo Principal
 
 typedef struct nprincipal
 {
-    int sizerow;
-    int sizecolumn;
-    struct NodoI *matriz; 
-    
-}NodoP;
+    int Filas;
+    int Columnas;
+    struct NodoFilas *matriz;
 
-//Declaraciones Globales
-int fila,columna,posi,posj;
+} NodoPrincipal;
 
-//Funcion para crear nodos de la lista de filas
+// Variables Globales
+int PosColumna, PosFila, SizeColumna, SizeFila;
 
-NodoI *add_nodei(NodoI *l,int f){
-    NodoI *newp=l;
+// Funcion para crear nodos de la lista de filas
 
-    newp =(NodoI*)malloc(sizeof(NodoI));
-    newp->nexti = NULL;
-    newp->nextj = NULL;
+NodoFilas *new_node_filas()
+{
+    PosFila++;
+    NodoFilas *newp;
+    if ((newp = (NodoFilas *)malloc(sizeof(NodoFilas))) == NULL)
+    {
+        fprintf(stderr, "error en el malloc\n");
+        exit(1);
+    }
+    newp->fila = PosFila;
+    newp->next_abajo = NULL;
+    newp->next_derecha = NULL;
 
     return newp;
 }
 
-//Funcion para crear nodos de la lista en columnas
+// Funcion para crear nodos de la lista de columnas
 
-NodoJ *add_nodej(NodoJ *l, int colum, int v){
-    NodoJ *newpj = l;
+NodoColumnas *new_node_columnas(int v)
+{
+    NodoColumnas *newp;
 
-    newpj = (NodoJ*)malloc(sizeof(NodoJ));
-    newpj->columna = colum;
-    newpj->dato = v;
-    newpj->next = NULL;
-
-    return newpj;
-}
-
-//Funcion de enlace de nodos de columnas con estructura iterativa
-
-NodoJ *enlace_nodej(NodoI *l, NodoJ *tj){
-    
-    while (l->nextj != NULL)
+    if ((newp = (NodoColumnas *)malloc(sizeof(NodoColumnas))) == NULL)
     {
-        l->nextj = l->nextj; //Revicion de nextj
+        fprintf(stderr, "error en el malloc\n");
+        exit(1);
     }
-    l->nextj = tj;
-    
-    return l->nextj;
+
+    newp->columna = PosColumna;
+    newp->dato = v;
+    newp->next = NULL;
+
+    return newp;
 }
 
-/* add_end añade newp al final de la listp */ 
-NodoJ *add_endj(NodoJ *listp, NodoJ *newp){
-	NodoJ *p;
+NodoPrincipal *new_nodo_principal(int m, int n)
+{
+    NodoPrincipal *newp;
+    if ((newp = (NodoPrincipal *)malloc(sizeof(NodoPrincipal))) == NULL)
+    {
+        fprintf(stderr, "error en malloc\n");
+        exit(1);
+    }
 
-	if(listp==NULL)
- 		return newp;
-    if (listp == NULL)
-        return listp;
-	for(p=listp;p->next!=NULL;p=p->next);
-	p->next = newp;
-	
+    newp->matriz = NULL;
+    newp->Filas = m;
+    newp->Columnas = n;
+
+    return newp;
+}
+
+NodoColumnas *add_node_columna(NodoColumnas *list, NodoColumnas *newp)
+{
+    NodoColumnas *p;
+
+    if (list == NULL)
+        return newp;
+    if (newp == NULL)
+        return list;
+    for (p = list; p->next != NULL; p = p->next)
+        ;
+
+    p->next = newp;
+    return list;
+}
+
+NodoFilas *add_node_fila(NodoFilas *list, NodoFilas *newp)
+{
+    NodoFilas *p;
+
+    if (list == NULL)
+        return newp;
+    for (p = list; p->next_abajo != NULL; p = p->next_abajo)
+        ;
+
+    p->next_abajo = newp;
+    return list;
+}
+
+NodoPrincipal *crear_matriz()
+{
+    NodoPrincipal *Matriz = NULL;
+    NodoFilas *newfila = NULL, *auxfila;
+    NodoColumnas *newcolumna = NULL;
+    int x, y, valor;
+
+    printf("Ingrese el numero de filas:\n");
+    scanf("%i", &SizeFila);
+    printf("Ingrese el numero de columnas:\n");
+    scanf("%i", &SizeColumna);
+
+    Matriz = new_nodo_principal(SizeFila, SizeColumna);
+
+    for (x = 1; x <= SizeFila; x++)
+    {
+        newfila = add_node_fila(newfila, new_node_filas());
+    }
+
+    auxfila = newfila;
+
+    for (x = 1; x <= SizeFila; x++)
+    {
+        for (y = 1; y <= SizeColumna; y++)
+        {
+            printf("Ingrese el valor en la posicion(%i,%i):\n", x, y);
+            scanf("%i", &valor);
+            PosColumna++;
+            if (valor != 0)
+                newcolumna = add_node_columna(newcolumna, new_node_columnas(valor));
+        }
+        newfila->next_derecha = newcolumna;
+        newfila = newfila->next_abajo;
+        newcolumna = NULL;
+        PosColumna = 0;
+    }
+
+    Matriz->matriz = auxfila;
+    return Matriz;
+}
+
+// Buscar los elementos de la matriz
+
+int Search(NodoColumnas *Column, int pos)
+{
+    while (Column)
+    {
+        if (Column->columna == pos)
+        {
+            return Column->dato;
+        }
+        Column = Column->next;
+    }
+    return 0;
+}
+
+// Mostrar los elementos de la matriz
+
+void print_matrix(NodoPrincipal *MainNode)
+{
+    NodoFilas *Matrix;
+    NodoColumnas *AuxColumn;
+    int x = 0;
+
+    if (!MainNode)
+    {
+        printf("La matriz no existe");
+        return;
+    }
+    Matrix = MainNode->matriz;
+
+    while (Matrix)
+    {
+        AuxColumn = Matrix->next_derecha;
+        Matrix = Matrix->next_abajo;
+        for (int i = 1; i <= MainNode->Columnas; i++)
+        {
+            x = Search(AuxColumn, i);
+            printf("%i ", x);
+        }
+        printf("\n");
+    }
+}
+
+// Obtener un elemento
+
+int get_item(int pos_column, int pos_row, NodoPrincipal *list)
+{
+    NodoFilas *aux_row;
+    aux_row = list->matriz;
+    for (int i = 1; i < pos_row; i++, aux_row = aux_row->next_abajo)
+        ;
+    return Search(aux_row->next_derecha, pos_column);
+}
+
+// Asignar elemento
+
+void Assign(int PosColumn, int PosRow, int data, NodoPrincipal *list)
+{
+    NodoFilas *aux_row;
+    NodoColumnas *column, *aux_col;
+    PosColumna = PosColumn;
+    aux_row = list->matriz;
+    for (int i = 1; i < PosRow; i++, aux_row = aux_row->next_abajo)
+        ;
+    column = aux_row->next_derecha;
+    aux_col = column;
+    while (column)
+    {
+        if (column->columna == PosColumn)
+        {
+            column->dato = data;
+            return;
+        }
+        column = column->next;
+    }
+    aux_col = add_node_columna(aux_col, new_node_columnas(data));
+    return;
+}
+
+// Producto por escalar
+
+NodoPrincipal *mporescalar(NodoPrincipal *listp, int escalar)
+{
+    NodoFilas *fila = listp->matriz;
+    NodoColumnas *columna;
+
+    for (int i = 1; i <= listp->Filas; i++)
+    {
+        columna = fila->next_derecha;
+        while (columna != NULL)
+        {
+            columna->dato = columna->dato * escalar;
+            columna = columna->next;
+        }
+
+        fila = fila->next_abajo;
+    }
+
     return listp;
 }
+// Suma de listas
+NodoPrincipal *sumar(NodoPrincipal *m1, NodoPrincipal *m2)
+{
+    NodoColumnas *columna1, *columna2;
+    NodoFilas *fila1, *fila2;
 
-//Creacion de Matriz
-NodoP create_m(){
-    int vcol;
-
-    printf("Ingrese la cantidad de filas:\n");
-    scanf("%i", &fila);
-    printf("Ingrese la cantidad de columnas:\n");
-    scanf("%i", &columna);
-
-    if (fila<=0 || columna<=0)
+    if (m2 == NULL)
     {
-        printf("El valor de las filas o columnas no puede ser menor a cero 0\n");
+        printf("a");
+        return m1;
     }
-    else
+    else if (m1 == NULL)
     {
-        //Creacion de la lista Matriz principal
+        return m2;
+    }
 
-        NodoI *M = NULL;
-        M = add_nodei(M,0);
-        NodoI *mp = M; //Auxiliar para recorrer las filas de la matriz
+    fila1 = m1->matriz;
+    fila2 = m2->matriz;
 
-        NodoJ *auxj=NULL;
-
-        for (int x = 0; x < fila; x++)
+    for (int i = 1; i <= m1->Filas; i++)
+    {
+        columna1 = fila1->next_derecha;
+        columna2 = fila2->next_derecha;
+        while (columna2 != NULL)
         {
-            for(int y = 0; y < columna; y++)
-            {
-                printf("Ingrese dato de la columna:\n");
-                scanf("%d",vcol);
-                if (vcol != 0)
-                {
-                    auxj= add_nodej(auxj,y,vcol); 
-                    mp->nextj=add_endj(mp->nextj,auxj);
-                }
-                mp->nexti=add_nodei(mp,x+1);
-                mp=mp->nexti;
-            }
+            columna2->dato += columna1->dato;
+            columna2 = columna2->next;
+            columna1 = columna1->next;
+        }
+        fila1 = fila1->next_abajo;
+        fila2 = fila2->next_abajo;
     }
-    }
+
+    return m2;
 }
-int main(){
-    create_m();
+
+int main()
+{
+    int PosicionY, PosicionX, datico, item, esc, choice;
+    NodoPrincipal *mtrx, *esc_mtrx, *mtrx2, *suma_mtrx;
+
+    do
+    {
+        printf("\n");
+        printf("¿Que desea hacer?\n");
+        printf("1. Obtener Elemento\n");
+        printf("2. Asignar Elemento\n");
+        printf("3. Producto por Escalar \n");
+        printf("4.Suma de matrices\n");
+        printf("5.Exit");
+        printf("--------------------------------\n");
+        scanf("%d", &choice);
+
+        // mtrx = crear_matriz();
+
+        system("clear");
+
+        switch (choice)
+        {
+        case 1:
+            mtrx = crear_matriz();
+            printf("Ingrese la posicion de la columna:\n");
+            scanf("%i", &PosicionY);
+            printf("Ingrese la posicion de la fila:\n");
+            scanf("%i", &PosicionX);
+            system("clear");
+            item = get_item(PosicionY, PosicionX, mtrx);
+            printf("El elemento obtenido es: %i\n", item);
+            break;
+
+        case 2:
+            mtrx = crear_matriz();
+            printf("Ingrese la posicion de la columna:\n");
+            scanf("%i", &PosicionY);
+            printf("Ingrese la posicion de la fila:\n");
+            scanf("%i", &PosicionX);
+            printf("Ingrese el dato a asignar:\n");
+            scanf("%i", &datico);
+            system("clear");
+            Assign(PosicionY, PosicionX, datico, mtrx);
+            printf("La matriz con el elemento asignado es:\n");
+            print_matrix(mtrx);
+            break;
+
+        case 3:
+            mtrx = crear_matriz();
+            printf("Introduzca el valor por el cual se multiplicara la matriz\n");
+            scanf("%i", &esc);
+            esc_mtrx = mporescalar(mtrx, esc);
+            system("clear");
+            printf("La matrix por el escalar es:\n");
+            print_matrix(esc_mtrx);
+            break;
+
+        case 4:
+            mtrx = crear_matriz();
+            mtrx2 = crear_matriz();
+
+            system("clear");
+
+            if ((mtrx->Filas != mtrx2->Filas) || (mtrx->Columnas != mtrx2->Columnas))
+            {
+                printf("Las matrices no coinciden \n");
+                break;
+            }
+
+            suma_mtrx = sumar(mtrx, mtrx2);
+            print_matrix(suma_mtrx);
+            break;
+
+        case 5:
+            printf("Ha salido exitosamente\n");
+        default:
+            printf("Hasta luego\n");
+        }
+
+    } while (choice != 5);
 }
