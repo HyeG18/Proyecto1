@@ -180,7 +180,7 @@ void print_matrix(NodoPrincipal *MainNode)
     NodoColumnas *AuxColumn;
     int x = 0;
     
-    if (MainNode == NULL)
+    if (!MainNode)
     {
         printf("La matriz no existe");
         return;
@@ -219,9 +219,9 @@ void Assign(int PosColumn, int PosRow, int data, NodoPrincipal *list)
     NodoColumnas *column, *aux_col;
     PosColumna = PosColumn;
     aux_row = list->matriz;
-    for (int i = 1; i < PosRow; i++, aux_row = aux_row ->next_abajo);
+    for (int i = 1; i < PosRow; i++, aux_row = aux_row->next_abajo);
     column = aux_row->next_derecha;
-    aux_col= column;
+    aux_col = column;
     while (column)
     {
         if (column->columna == PosColumn)
@@ -234,37 +234,182 @@ void Assign(int PosColumn, int PosRow, int data, NodoPrincipal *list)
     aux_col = add_node_columna(aux_col,new_node_columnas(data));
     return;
 } 
+
 //Producto por escalar
+
+NodoPrincipal *mporescalar(NodoPrincipal *listp, int escalar)
+{
+    NodoFilas *fila = listp->matriz;
+    NodoColumnas *columna;
+
+    for (int i = 1; i <= listp->Filas; i++)
+    {
+        columna = fila->next_derecha;
+        while (columna != NULL)
+        {
+            columna->dato = columna->dato * escalar;
+            columna = columna->next;
+        }
+
+        fila = fila->next_abajo;
+    }
+
+    return listp;
+}
 //Suma de listas
-//Producto de listas 
+
+NodoPrincipal *sumar(NodoPrincipal *m1, NodoPrincipal *m2)
+	{
+	NodoColumnas *columna1, *columna2;
+	NodoFilas *fila1, *fila2;
+	
+	if (m2 == NULL)
+	{
+	// printf("a");
+	return m1;
+	}
+	else if (m1 == NULL)
+	{
+	return m2;
+	}
+	
+	fila1 = m1->matriz;
+	fila2 = m2->matriz;
+	
+	for (int i = 1; i <= m1->Filas; i++)
+	{
+	columna1 = fila1->next_derecha;
+	columna2 = fila2->next_derecha;
+	while (columna2 != NULL)
+	{
+	columna2->dato += columna1->dato;
+	columna2 = columna2->next;
+	columna1 = columna1->next;
+	}
+	fila1 = fila1->next_abajo;
+	fila2 = fila2->next_abajo;
+	}
+	
+	return m2;
+	}
+
+//Producto de listas
+/*NodoPrincipal *list_product(NodoPrincipal *matriz, NodoPrincipal *mproduct)
+{
+    NodoFilas* row_ptr = matriz->Filas;
+    NodoFilas* ptrs[matriz->Columnas];
+    for (int i = 0; i < matriz->Columnas; i++)
+    {
+        ptrs[i] = row_ptr;
+        row_ptr = row_ptr->next_derecha;
+    }
+    
+} */
+
 //Trasponer listas 
+
+NodoPrincipal *traspuesta(NodoPrincipal *matrx)
+{
+    int i, j;
+    NodoFilas *fila = matrx->matriz;
+    NodoColumnas *columna;
+
+    //columna= columna->;
+
+    for (int i = 1; i <= matrx->Filas; i++)
+    {
+        for (int j = 1; j <= columna->columna; j++)
+        {
+          Assign(PosFila,PosColumna,get_item(PosColumna,PosFila,matrx),matrx);  
+        }
+    }
+    return matrx;
+}
 
 int main()
 {
-    int PosicionY, PosicionX, datico, item;
-    NodoPrincipal *mtrx;
+    int PosicionY, PosicionX, datico, item, esc, choice;
+    NodoPrincipal *mtrx, *esc_mtrx, *aux_mtrx, *sum_mtrx;
+
+do 
+{
+    printf("\n");
+    printf("¿Que desea hacer?\n");
+    printf("1. Obtener Elemento\n");
+    printf("2. Asignar Elemento\n");
+    printf("3. Producto por Escalar \n");
+    printf("4. Suma de Matrices\n");
+    printf("5. Transpuesta de la Matriz\n");
+    printf("6. Exit\n");
+    printf("--------------------------------\n");
+    scanf("%d",&choice);
     
+    //mtrx = crear_matriz();
+    
+    system("clear");
 
-    mtrx = crear_matriz();
-    print_matrix(mtrx);
+    switch (choice)
+    {
+        case 1:
+        mtrx = crear_matriz();
+        printf("Ingrese la posicion de la columna:\n");
+        scanf("%i", &PosicionY);
+        printf("Ingrese la posicion de la fila:\n");
+        scanf("%i", &PosicionX);
+        system("clear");
+        item = get_item(PosicionY, PosicionX, mtrx);
+        printf("El elemento obtenido es: %i\n", item);
+        break;
+        
+        case 2:
+        mtrx = crear_matriz(); 
+        printf("Ingrese la posicion de la columna:\n");
+        scanf("%i", &PosicionY);
+        printf("Ingrese la posicion de la fila:\n");
+        scanf("%i", &PosicionX);
+        printf("Ingrese el dato a asignar:\n");
+        scanf("%i", &datico);
+        system("clear");
+        Assign(PosicionY,PosicionX,datico,mtrx);
+        printf("La matriz con el elemento asignado es:\n");
+        print_matrix(mtrx);
+        break;
 
-    printf("Ingrese la posicion de la columna:\n");
-    scanf("%i ", &PosicionY);
-    printf("Ingrese la posicion de la fila:\n");
-    scanf("%i ", &PosicionX);
-    printf("Ingrese el dato a asignar:\n");
-    scanf("%i \n", &datico);
+        case 3:
+        mtrx = crear_matriz(); 
+        printf("Introduzca el valor por el cual se multiplicara la matriz\n"); 
+        scanf("%i", &esc);
+        esc_mtrx = mporescalar(mtrx, esc);
+        system("clear");
+        printf("La matrix por el escalar es:\n");
+        print_matrix(esc_mtrx);
+        break;
 
-    Assign(PosicionY,PosicionX,datico,mtrx);
-    print_matrix(mtrx);
+        case 4:
+        printf("Ingrese la primera matriz\n");
+        mtrx = crear_matriz();
+        printf("Ingrese la segunda matriz\n");
+        aux_mtrx = crear_matriz();
+        sum_mtrx = sumar(mtrx, aux_mtrx);
+        system("clear");
+        printf("La matriz suma es:\n");
+        print_matrix(sum_mtrx);
+        break;
+        
+        case 5:
+        mtrx = crear_matriz();
+        traspuesta(mtrx);
+        print_matrix(mtrx);
+        break; 
 
-
-    printf("Ingrese la posicion de la columna:\n");
-    scanf("%i ", &PosicionY);
-    printf("Ingrese la posicion de la fila:\n");
-    scanf("%i ", &PosicionX);
-
-    item = get_item(PosicionY, PosicionX, mtrx);
-    printf("%i \n", item);
+        case 6:
+        printf("Ha salido exitosamente\n");
+        break;
+        
+        default: printf("Hasta luego\n");
+        break;
+ } 
+ 
+} while (choice != 6);
 
 }
